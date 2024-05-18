@@ -29,6 +29,15 @@ final class NewsCollectionViewController: UIViewController {
         return collection
     }()
     
+    private lazy var loadingView: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView(style: .large)
+        activityIndicator.startAnimating()
+        activityIndicator.isHidden = false
+        activityIndicator.frame = .init(origin: .zero, size: CGSize(width: 64, height: 64))
+        activityIndicator.layer.zPosition = 100
+        return activityIndicator
+    }()
+    
     // MARK: - State & ViewModels
     private let viewModel: NewsCollectionViewModelProtocol
     private var cancellables = Set<AnyCancellable>()
@@ -65,10 +74,18 @@ final class NewsCollectionViewController: UIViewController {
                 self?.collectionView.reloadData()
             }
             .store(in: &cancellables)
+        
+        viewModel.isLoading
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isLoading in
+                self?.loadingView.isHidden = !isLoading
+            }
+            .store(in: &cancellables)
     }
     
     private func setupCollectionView() {
         view.addSubview(collectionView)
+        view.addSubview(loadingView)
         registerCell()
     }
     
@@ -78,12 +95,16 @@ final class NewsCollectionViewController: UIViewController {
     
     private func setupConstraints() {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        loadingView.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.topAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            loadingView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loadingView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
 }

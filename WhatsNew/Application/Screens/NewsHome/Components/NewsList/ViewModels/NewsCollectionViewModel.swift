@@ -11,6 +11,7 @@ import Foundation
 protocol NewsCollectionViewModelProtocol {
     
     var articles: [Article] { get }
+    var isLoading: PassthroughSubject<Bool, Never> { get }
     var cellViewModels: PassthroughSubject<[NewsCollectionCellViewModel], Never> { get }
     var articlesCount: Int { get }
     
@@ -21,6 +22,7 @@ final class NewsCollectionViewModel: NewsCollectionViewModelProtocol {
     
     private(set) var articles: [Article] = []
     
+    private(set) var isLoading = PassthroughSubject<Bool, Never>()
     private(set) var cellViewModels = PassthroughSubject<[NewsCollectionCellViewModel], Never>()
     private(set) var articlesCount: Int = 0
     
@@ -40,6 +42,8 @@ final class NewsCollectionViewModel: NewsCollectionViewModelProtocol {
         Task { [weak self] in
             guard let self = self else { return }
             
+            await self.updateLoadingState(with: true)
+            
             let result = await self.newsDataSource.getTopHeadlines(for: self.countryList)
             
             switch result {
@@ -48,6 +52,7 @@ final class NewsCollectionViewModel: NewsCollectionViewModelProtocol {
                 await self.updateArticles(articles: headlinesResponse.articles)
             case .failure(let error):
                 // update UI with an error message
+                await self.updateLoadingState(with: false)
                 AppLogger.default.log("Failed to fetch headlines: \(error.localizedDescription)", self, .warning)
             }
         }
@@ -82,6 +87,7 @@ final class NewsCollectionViewModel: NewsCollectionViewModelProtocol {
         }
         
         await updateUIData(cellsData: cellsData.sorted(by: { $0.date.compare($1.date) == .orderedAscending }))
+        await updateLoadingState(with: false)
     }
     
     @MainActor
@@ -90,7 +96,12 @@ final class NewsCollectionViewModel: NewsCollectionViewModelProtocol {
         self.cellViewModels.send(cellsData.sorted(by: { $0.date.compare($1.date) == .orderedAscending }))
     }
     
+    @MainActor
+    private func updateLoadingState(with value: Bool) {
+        self.isLoading.send(value)
+    }
     // MARK: - Utility
+    
     private func filterArticles(from articles: [Article]) -> [Article] {
         return articles.filter { article in
             !wasArticleRemoved(article.title)

@@ -571,6 +571,7 @@
 				DEVELOPMENT_TEAM = 8Z58DGA5TP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WhatsNew/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Whats New";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
@@ -604,6 +605,7 @@
 				DEVELOPMENT_TEAM = 8Z58DGA5TP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WhatsNew/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Whats New";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIStatusBarStyle = UIStatusBarStyleLightContent;
